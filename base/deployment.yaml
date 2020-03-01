@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-demo
+  labels:
+    app: app-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-demo
+  template:
+    metadata:
+      labels:
+        app: app-demo
+    spec:
+      containers:
+      - name: app-demo
+        image: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/app-demo:v1
+        ports:
+        - containerPort: 8080
+      volumes:
+        - name: disk-pvc
+          persistentVolumeClaim:
+            claimName: disk-pvc
