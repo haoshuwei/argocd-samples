@@ -5,7 +5,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: alicloud-disk-ssd
+  storageClassName: alicloud-disk-efficiency
   resources:
     requests:
       storage: 20Gi

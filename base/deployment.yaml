@@ -16,10 +16,13 @@ spec:
     spec:
       containers:
       - name: app-demo
-        image: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/app-demo:v1
+        image: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1
         ports:
         - containerPort: 8080
+        volumeMounts:
+        - name: storage-pvc
+          mountPath: "/data"
       volumes:
-        - name: disk-pvc
+        - name: storage-pvc
           persistentVolumeClaim:
-            claimName: disk-pvc
+            claimName: storage-pvc
