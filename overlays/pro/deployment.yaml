@@ -16,4 +16,4 @@ spec:
     spec:
       containers:
       - name: app-demo
-        image: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v2
+        image: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1
