@@ -17,6 +17,7 @@ spec:
       containers:
       - name: app-demo
         image: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         volumeMounts:

@@ -16,4 +16,6 @@ spec:
     spec:
       containers:
       - name: app-demo
-        image: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1
+        env:
+        - name: "CLUSTER"
+          value: "ACK Pre"
