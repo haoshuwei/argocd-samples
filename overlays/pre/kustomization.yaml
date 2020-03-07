@@ -6,5 +6,5 @@ resources:
 - pvc.yaml
 images:
 - name: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo
-  newName: haoshuwei24/go-demo
+  newName: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo
   newTag: v2
