@@ -18,4 +18,4 @@ spec:
       - name: app-demo
         env:
         - name: "CLUSTER"
-          value: "Pre"
+          value: "ACK Pre"
