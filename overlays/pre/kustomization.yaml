@@ -7,4 +7,4 @@ resources:
 images:
 - name: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo
   newName: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo
-  newTag: v2
+  newTag: v3
