@@ -17,5 +17,5 @@ spec:
       containers:
       - name: app-demo
         env:
-        - name: "Cluster"
+        - name: "CLUSTER"
           value: "Pre"
