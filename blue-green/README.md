@@ -54,13 +54,56 @@ helm-blue-green-demo-preview   ClusterIP   172.27.1.4     <none>        80/TCP  
 ```
 
 ```
-$ curl 
+$ curl 172.27.0.140
+Cluster: , Version: v1
+$ curl 172.27.1.4
+Cluster: , Version: v2
 ```
 
-4. Promote `ks-guestbook-demo:0.2` to `green` by patching `Rollout` resource:
+4. Promote `haoshuwei24/go-demo:v2` to `green`:
 
 ```
-argocd app patch-resource blue-green --kind Rollout --resource-name blue-green-helm-blue-green-demo --patch '{ "status": { "verifyingPreview": false } }' --patch-type 'application/merge-patch+json'
+$ kubectl argo rollouts -n blue-green promote helm-blue-green-demo
 ```
 
-This promotes `ks-guestbook-demo:0.2` to `green` status and `Rollout` deletes old replica which runs `ks-guestbook-demo:0.1`.
+```
+$ kubectl  argo rollouts -n blue-green get rollout helm-blue-green-demo
+Name:            helm-blue-green-demo
+Namespace:       blue-green
+Status:          ✔ Healthy
+Strategy:        BlueGreen
+Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v2 (active)
+Replicas:
+  Desired:       1
+  Current:       1
+  Updated:       1
+  Ready:         1
+  Available:     1
+
+NAME                                              KIND        STATUS         AGE    INFO
+⟳ helm-blue-green-demo                            Rollout     ✔ Healthy      14m
+├──# revision:3
+│  └──⧉ helm-blue-green-demo-64764d79ff           ReplicaSet  ✔ Healthy      2m48s  active
+│     └──□ helm-blue-green-demo-64764d79ff-zwpmw  Pod         ✔ Running      2m48s  ready:1/1
+├──# revision:2
+│  └──⧉ helm-blue-green-demo-94d8cb565            ReplicaSet  • ScaledDown   12m
+└──# revision:1
+   └──⧉ helm-blue-green-demo-7c8b5444b6           ReplicaSet  • ScaledDown   14m
+      └──□ helm-blue-green-demo-7c8b5444b6-lf5kb  Pod         ◌ Terminating  14m    ready:1/1
+```
+
+```
+$ kubectl -n blue-green get svc
+NAME                           TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+helm-blue-green-demo           ClusterIP   172.27.0.140   <none>        80/TCP    6m45s
+helm-blue-green-demo-preview   ClusterIP   172.27.1.4     <none>        80/TCP    6m45s
+```
+
+```
+$ curl 172.27.0.140
+Cluster: , Version: v2
+$ curl 172.27.1.4
+Cluster: , Version: v2
+```
+
+This promotes `haoshuwei24/go-demo:v2` to `green` status and `Rollout` deletes old replica which runs `haoshuwei24/go-demo:v1`.
