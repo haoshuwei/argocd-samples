@@ -3,8 +3,9 @@
 The blue green strategy is not supported by built-in Kubernetes Deployment but available via third-party Kubernetes controller.
 This example demonstrates how to implement blue-green deployment via [Argo Rollouts](https://github.com/argoproj/argo-rollouts):
 
-1. Install Argo Rollouts controller: https://github.com/argoproj/argo-rollouts#installation
-2. Create a sample application and sync it.
+#### 1 Install Argo Rollouts controller
+[https://github.com/argoproj/argo-rollouts#installation](https://github.com/argoproj/argo-rollouts#installation)
+#### 2 Create a sample application and sync it.
 
 ```
 $ argocd app create --name helm-blue-green-demo --repo https://github.com/haoshuwei/argocd-samples --path blue-green --dest-server https://kubernetes.default.svc --dest-namespace blue-green --revision master
@@ -13,7 +14,7 @@ $ argocd app sync helm-blue-green-demo
 
 Once the application is synced you can access it using `helm-blue-green-demo` service.
 
-3. Change image version parameter to trigger blue-green deployment process:
+#### 3 Change image version parameter to trigger blue-green deployment process:
 
 ```
 $ argocd app set helm-blue-green-demo -p image.tag=v2 && argocd app sync helm-blue-green-demo
@@ -60,7 +61,7 @@ $ curl 172.27.1.4
 Cluster: , Version: v2
 ```
 
-4. Promote `haoshuwei24/go-demo:v2` to `green`:
+#### 4 Promote `haoshuwei24/go-demo:v2` to `green`:
 
 ```
 $ kubectl argo rollouts -n blue-green promote helm-blue-green-demo
