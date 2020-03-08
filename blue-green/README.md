@@ -7,19 +7,55 @@ This example demonstrates how to implement blue-green deployment via [Argo Rollo
 2. Create a sample application and sync it.
 
 ```
-argocd app create --name blue-green-demo --repo https://github.com/haoshuwei/argocd-samples --path blue-green --dest-server https://kubernetes.default.svc --dest-namespace default  && argocd app sync blue-green-demo
+$ argocd app create --name helm-blue-green-demo --repo https://github.com/haoshuwei/argocd-samples --path blue-green --dest-server https://kubernetes.default.svc --dest-namespace blue-green --revision master
+$ argocd app sync helm-blue-green-demo
 ```
 
-Once the application is synced you can access it using `blue-green-helm-blue-green-demo` service.
+Once the application is synced you can access it using `helm-blue-green-demo` service.
 
 3. Change image version parameter to trigger blue-green deployment process:
 
 ```
-argocd app set blue-green -p image.tag=0.2 && argocd app sync blue-green
+$ argocd app set helm-blue-green-demo -p image.tag=v2 && argocd app sync helm-blue-green-demo
 ```
 
-Now application runs `ks-guestbook-demo:0.1` and `ks-guestbook-demo:0.2` images simultaneously.
-The `ks-guestbook-demo:0.2` is still considered `blue` available only via preview service `blue-green-helm-blue-green-demo-preview`.
+Now application runs `haoshuwei24/go-demo:v1` and `haoshuwei24/go-demo:v2` images simultaneously.
+The `haoshuwei24/go-demo:v2` is still considered `blue` available only via preview service `helm-blue-green-demo-preview`.
+```
+$ kubectl  argo rollouts -n blue-green get rollout helm-blue-green-demo
+Name:            helm-blue-green-demo
+Namespace:       blue-green
+Status:          ॥ Paused
+Strategy:        BlueGreen
+Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1 (active)
+                 registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v2 (preview)
+Replicas:
+  Desired:       1
+  Current:       2
+  Updated:       1
+  Ready:         2
+  Available:     1
+
+NAME                                              KIND        STATUS     AGE    INFO
+⟳ helm-blue-green-demo                            Rollout     ॥ Paused   5m1s
+├──# revision:2
+│  └──⧉ helm-blue-green-demo-94d8cb565            ReplicaSet  ✔ Healthy  2m43s  preview
+│     └──□ helm-blue-green-demo-94d8cb565-gp7tn   Pod         ✔ Running  2m43s  ready:1/1
+└──# revision:1
+   └──⧉ helm-blue-green-demo-7c8b5444b6           ReplicaSet  ✔ Healthy  5m1s   active
+      └──□ helm-blue-green-demo-7c8b5444b6-lf5kb  Pod         ✔ Running  5m1s   ready:1/1
+```
+
+```
+$ kubectl -n blue-green get svc
+NAME                           TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+helm-blue-green-demo           ClusterIP   172.27.0.140   <none>        80/TCP    6m45s
+helm-blue-green-demo-preview   ClusterIP   172.27.1.4     <none>        80/TCP    6m45s
+```
+
+```
+$ curl 
+```
 
 4. Promote `ks-guestbook-demo:0.2` to `green` by patching `Rollout` resource:
 
