@@ -14,6 +14,34 @@ $ argocd app sync helm-canary-demo
 Once the application is synced you can access it using `hhelm-canary-demo` service.
 
 ```
+$ kubectl argo rollouts -n canary get rollout helm-canary-demo
+Name:            helm-canary-demo
+Namespace:       canary
+Status:          ✔ Healthy
+Strategy:        Canary
+  Step:          8/8
+  SetWeight:     100
+  ActualWeight:  100
+Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1 (stable)
+Replicas:
+  Desired:       5
+  Current:       5
+  Updated:       5
+  Ready:         5
+  Available:     5
+
+NAME                                          KIND        STATUS     AGE    INFO
+⟳ helm-canary-demo                            Rollout     ✔ Healthy  7m46s
+└──# revision:1
+   └──⧉ helm-canary-demo-5577cb9b4b           ReplicaSet  ✔ Healthy  7m46s  stable
+      ├──□ helm-canary-demo-5577cb9b4b-9qs8g  Pod         ✔ Running  7m46s  ready:1/1
+      ├──□ helm-canary-demo-5577cb9b4b-fmrmq  Pod         ✔ Running  7m46s  ready:1/1
+      ├──□ helm-canary-demo-5577cb9b4b-gkz2g  Pod         ✔ Running  7m46s  ready:1/1
+      ├──□ helm-canary-demo-5577cb9b4b-qh7t4  Pod         ✔ Running  7m46s  ready:1/1
+      └──□ helm-canary-demo-5577cb9b4b-tgtjw  Pod         ✔ Running  7m46s  ready:1/1
+```
+
+```
 $ kubectl -n canary get svc
 NAME                       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
 helm-canary-demo           ClusterIP   172.27.0.160   <none>        80/TCP    22s
@@ -28,97 +56,172 @@ Cluster: , Version: v1
 Cluster: , Version: v1
 ```
 
-3. Change image version parameter to trigger blue-green deployment process:
+3. Change image version parameter to trigger canary deployment process:
 
+The canary strategy means that canary deployment will promote manully when setWeight from 20 to 40 and from 80 to 100:
 ```
-$ argocd app set helm-blue-green-demo -p image.tag=v2 && argocd app sync helm-blue-green-demo
+strategy:
+  canary:
+    steps:
+    - setWeight: 20
+    - pause: {}
+    - setWeight: 40
+    - pause: {duration: 40}
+    - setWeight: 60
+    - pause: {duration: 20}
+    - setWeight: 80
+    - pause: {}
 ```
 
-Now application runs `haoshuwei24/go-demo:v1` and `haoshuwei24/go-demo:v2` images simultaneously.
-The `haoshuwei24/go-demo:v2` is still considered `blue` available only via preview service `helm-blue-green-demo-preview`.
+Change image version parameter and sync the app:
 ```
-$ kubectl  argo rollouts -n blue-green get rollout helm-blue-green-demo
-Name:            helm-blue-green-demo
-Namespace:       blue-green
+$ argocd app set helm-canary-demo -p image.tag=v2 && argocd app sync helm-canary-demo
+```
+`ActualWeight:  20`:
+```
+$ kubectl argo rollouts -n canary get rollout helm-canary-demo
+Name:            helm-canary-demo
+Namespace:       canary
 Status:          ॥ Paused
-Strategy:        BlueGreen
-Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1 (active)
-                 registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v2 (preview)
+Strategy:        Canary
+  Step:          1/8
+  SetWeight:     20
+  ActualWeight:  20
+Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1 (stable)
+                 registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v2 (canary)
 Replicas:
-  Desired:       1
-  Current:       2
+  Desired:       5
+  Current:       5
   Updated:       1
-  Ready:         2
-  Available:     1
+  Ready:         5
+  Available:     5
 
-NAME                                              KIND        STATUS     AGE    INFO
-⟳ helm-blue-green-demo                            Rollout     ॥ Paused   5m1s
+NAME                                          KIND        STATUS     AGE    INFO
+⟳ helm-canary-demo                            Rollout     ॥ Paused   12m
 ├──# revision:2
-│  └──⧉ helm-blue-green-demo-94d8cb565            ReplicaSet  ✔ Healthy  2m43s  preview
-│     └──□ helm-blue-green-demo-94d8cb565-gp7tn   Pod         ✔ Running  2m43s  ready:1/1
+│  └──⧉ helm-canary-demo-79894f78f            ReplicaSet  ✔ Healthy  3m56s  canary
+│     └──□ helm-canary-demo-79894f78f-2dgwb   Pod         ✔ Running  3m56s  ready:1/1
 └──# revision:1
-   └──⧉ helm-blue-green-demo-7c8b5444b6           ReplicaSet  ✔ Healthy  5m1s   active
-      └──□ helm-blue-green-demo-7c8b5444b6-lf5kb  Pod         ✔ Running  5m1s   ready:1/1
+   └──⧉ helm-canary-demo-5577cb9b4b           ReplicaSet  ✔ Healthy  12m    stable
+      ├──□ helm-canary-demo-5577cb9b4b-9qs8g  Pod         ✔ Running  12m    ready:1/1
+      ├──□ helm-canary-demo-5577cb9b4b-fmrmq  Pod         ✔ Running  12m    ready:1/1
+      ├──□ helm-canary-demo-5577cb9b4b-qh7t4  Pod         ✔ Running  12m    ready:1/1
+      └──□ helm-canary-demo-5577cb9b4b-tgtjw  Pod         ✔ Running  12m    ready:1/1
 ```
 
 ```
-$ kubectl -n blue-green get svc
-NAME                           TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
-helm-blue-green-demo           ClusterIP   172.27.0.140   <none>        80/TCP    6m45s
-helm-blue-green-demo-preview   ClusterIP   172.27.1.4     <none>        80/TCP    6m45s
+$ kubectl -n canary get svc
+NAME                       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+helm-canary-demo           ClusterIP   172.27.0.160   <none>        80/TCP    22s
 ```
 
 ```
-$ curl 172.27.0.140
+$ while sleep 0.5; do curl 172.27.0.160; done
+Cluster: , Version: v2
 Cluster: , Version: v1
-$ curl 172.27.1.4
-Cluster: , Version: v2
+Cluster: , Version: v1
+Cluster: , Version: v1
+Cluster: , Version: v1
 ```
 
-4. Promote `haoshuwei24/go-demo:v2` to `green`:
+4. Promote `haoshuwei24/go-demo:v2` to weight `40`, then automatically to `60` and `80`:
 
 ```
-$ kubectl argo rollouts -n blue-green promote helm-blue-green-demo
+$ kubectl argo rollouts -n canary promote helm-canary-demo
 ```
 
 ```
-$ kubectl  argo rollouts -n blue-green get rollout helm-blue-green-demo
-Name:            helm-blue-green-demo
-Namespace:       blue-green
-Status:          ✔ Healthy
-Strategy:        BlueGreen
-Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v2 (active)
+$ kubectl argo rollouts -n canary get rollout helm-canary-demo
+Name:            helm-canary-demo
+Namespace:       canary
+Status:          ॥ Paused
+Strategy:        Canary
+  Step:          7/8
+  SetWeight:     80
+  ActualWeight:  80
+Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1 (stable)
+                 registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v2 (canary)
 Replicas:
-  Desired:       1
-  Current:       1
-  Updated:       1
-  Ready:         1
-  Available:     1
+  Desired:       5
+  Current:       5
+  Updated:       4
+  Ready:         5
+  Available:     5
 
-NAME                                              KIND        STATUS         AGE    INFO
-⟳ helm-blue-green-demo                            Rollout     ✔ Healthy      14m
-├──# revision:3
-│  └──⧉ helm-blue-green-demo-64764d79ff           ReplicaSet  ✔ Healthy      2m48s  active
-│     └──□ helm-blue-green-demo-64764d79ff-zwpmw  Pod         ✔ Running      2m48s  ready:1/1
+NAME                                          KIND        STATUS     AGE    INFO
+⟳ helm-canary-demo                            Rollout     ॥ Paused   18m
 ├──# revision:2
-│  └──⧉ helm-blue-green-demo-94d8cb565            ReplicaSet  • ScaledDown   12m
+│  └──⧉ helm-canary-demo-79894f78f            ReplicaSet  ✔ Healthy  9m20s  canary
+│     ├──□ helm-canary-demo-79894f78f-2dgwb   Pod         ✔ Running  9m20s  ready:1/1
+│     ├──□ helm-canary-demo-79894f78f-lzqhr   Pod         ✔ Running  2m3s   ready:1/1
+│     ├──□ helm-canary-demo-79894f78f-rwxtl   Pod         ✔ Running  79s    ready:1/1
+│     └──□ helm-canary-demo-79894f78f-xzcmq   Pod         ✔ Running  55s    ready:1/1
 └──# revision:1
-   └──⧉ helm-blue-green-demo-7c8b5444b6           ReplicaSet  • ScaledDown   14m
-      └──□ helm-blue-green-demo-7c8b5444b6-lf5kb  Pod         ◌ Terminating  14m    ready:1/1
+   └──⧉ helm-canary-demo-5577cb9b4b           ReplicaSet  ✔ Healthy  18m    stable
+      └──□ helm-canary-demo-5577cb9b4b-qh7t4  Pod         ✔ Running  18m    ready:1/1
 ```
 
 ```
-$ kubectl -n blue-green get svc
-NAME                           TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
-helm-blue-green-demo           ClusterIP   172.27.0.140   <none>        80/TCP    6m45s
-helm-blue-green-demo-preview   ClusterIP   172.27.1.4     <none>        80/TCP    6m45s
+$ kubectl -n canary get svc
+NAME                       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+helm-canary-demo           ClusterIP   172.27.0.160   <none>        80/TCP    22s
 ```
 
 ```
-$ curl 172.27.0.140
+$ while sleep 0.5; do curl 172.27.0.160; done
+Cluster: , Version: v1
 Cluster: , Version: v2
-$ curl 172.27.1.4
+Cluster: , Version: v2
+Cluster: , Version: v2
 Cluster: , Version: v2
 ```
 
-This promotes `haoshuwei24/go-demo:v2` to `green` status and `Rollout` deletes old replica which runs `haoshuwei24/go-demo:v1`.
+5. Promote `haoshuwei24/go-demo:v2` to weight `100`
+```
+$ kubectl argo rollouts -n canary promote helm-canary-demo
+```
+
+```
+$ kubectl argo rollouts -n canary get rollout helm-canary-demo
+Name:            helm-canary-demo
+Namespace:       canary
+Status:          ✔ Healthy
+Strategy:        Canary
+  Step:          8/8
+  SetWeight:     100
+  ActualWeight:  100
+Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v2 (stable)
+Replicas:
+  Desired:       5
+  Current:       5
+  Updated:       5
+  Ready:         5
+  Available:     5
+
+NAME                                         KIND        STATUS        AGE    INFO
+⟳ helm-canary-demo                           Rollout     ✔ Healthy     21m
+├──# revision:2
+│  └──⧉ helm-canary-demo-79894f78f           ReplicaSet  ✔ Healthy     12m    stable
+│     ├──□ helm-canary-demo-79894f78f-2dgwb  Pod         ✔ Running     12m    ready:1/1
+│     ├──□ helm-canary-demo-79894f78f-lzqhr  Pod         ✔ Running     5m15s  ready:1/1
+│     ├──□ helm-canary-demo-79894f78f-rwxtl  Pod         ✔ Running     4m31s  ready:1/1
+│     ├──□ helm-canary-demo-79894f78f-xzcmq  Pod         ✔ Running     4m7s   ready:1/1
+│     └──□ helm-canary-demo-79894f78f-pjg5k  Pod         ✔ Running     41s    ready:1/1
+└──# revision:1
+   └──⧉ helm-canary-demo-5577cb9b4b          ReplicaSet  • ScaledDown  21m
+```
+
+```
+$ kubectl -n canary get svc
+NAME                       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+helm-canary-demo           ClusterIP   172.27.0.160   <none>        80/TCP    22s
+```
+
+```
+$ while sleep 0.5; do curl 172.27.0.160; done
+Cluster: , Version: v2
+Cluster: , Version: v2
+Cluster: , Version: v2
+Cluster: , Version: v2
+Cluster: , Version: v2
+```
