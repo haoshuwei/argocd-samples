@@ -2,7 +2,27 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "helm-istio-canary-demo.fullname" . }}
+  name: canary-svc
+  labels:
+    app: {{ template "helm-istio-canary-demo.name" . }}
+    chart: {{ template "helm-istio-canary-demo.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "helm-istio-canary-demo.name" . }}
+    release: {{ .Release.Name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stable-svc
   labels:
     app: {{ template "helm-istio-canary-demo.name" . }}
     chart: {{ template "helm-istio-canary-demo.chart" . }}
