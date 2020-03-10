@@ -19,7 +19,7 @@ spec:
       steps:
       - setWeight: 10
       - pause:
-        duration: 600
+          duration: 600
       canaryService: canary-svc # required
       stableService: stable-svc  # required
       trafficRouting:
