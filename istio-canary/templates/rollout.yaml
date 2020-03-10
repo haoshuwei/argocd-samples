@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ template "helm-istio-canary-demo.fullname" . }}
+  labels:
+    app: {{ template "helm-istio-canary-demo.name" . }}
+    chart: {{ template "helm-istio-canary-demo.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: {{ template "helm-istio-canary-demo.name" . }}
+      release: {{ .Release.Name }}
+  strategy:
+    canary:
+      steps:
+      - setWeight: 10
+      - pause:
+        duration: 600
+      canaryService: canary-svc # required
+      stableService: stable-svc  # required
+      trafficRouting:
+        istio:
+          virtualService:
+          name: rollout-vsvc  # required
+          routes:
+          - primary # At least one route is required
+  template:
+    metadata:
+      labels:
+        app: {{ template "helm-istio-canary-demo.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
