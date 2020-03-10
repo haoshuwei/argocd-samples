@@ -25,9 +25,9 @@ spec:
       trafficRouting:
         istio:
           virtualService:
-          name: rollout-vsvc  # required
-          routes:
-          - primary # At least one route is required
+            name: rollout-vsvc  # required
+            routes:
+            - primary # At least one route is required
   template:
     metadata:
       labels:
