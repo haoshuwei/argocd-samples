@@ -22,10 +22,6 @@ spec:
         duration: 20
       - setWeight: 40
       - pause: {}
-      - setWeight: 60
-      - pause: {duration: 20}
-      - setWeight: 80
-      - pause: {}
       canaryService: canary-svc # required
       stableService: stable-svc  # required
       trafficRouting:
