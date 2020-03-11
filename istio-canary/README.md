@@ -1,6 +1,6 @@
-# Canary
+# Canary with Istio
 
-The blue green strategy is not supported by built-in Kubernetes Deployment but available via third-party Kubernetes controller.
+The canary strategy is not supported by built-in Kubernetes Deployment but available via third-party Kubernetes controller.
 This example demonstrates how to implement blue-green deployment via [Argo Rollouts](https://github.com/argoproj/argo-rollouts):
 
 #### 1 Install Argo Rollouts controller 
@@ -8,14 +8,14 @@ This example demonstrates how to implement blue-green deployment via [Argo Rollo
 #### 2 Create a sample application and sync it.
 
 ```
-$ argocd app create --name helm-istio-canary-demo --repo https://github.com/haoshuwei/argocd-samples --path canary --dest-server https://kubernetes.default.svc --dest-namespace canary --revision master
+$ argocd app create --name helm-istio-canary-demo --repo https://github.com/haoshuwei/argocd-samples --path istio-canary --dest-server https://kubernetes.default.svc --dest-namespace istio --revision latest
 $ argocd app sync helm-istio-canary-demo
 ```
 
 Once the application is synced you can access it using `hhelm-istio-canary-demo` service.
 
 ```
-$ kubectl argo rollouts -n canary get rollout helm-istio-canary-demo
+$ kubectl argo rollouts -n istio get rollout helm-istio-canary-demo
 Name:            helm-istio-canary-demo
 Namespace:       canary
 Status:          ✔ Healthy
