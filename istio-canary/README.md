@@ -12,8 +12,9 @@ $ argocd app create --name helm-istio-canary-demo --repo https://github.com/haos
 $ argocd app sync helm-istio-canary-demo
 ```
 
-Once the application is synced you can access it using `hhelm-istio-canary-demo` service.
+Once the application is synced you can access it using `istio-ingressgateway` service.
 
+Current helm-istio-canary-demo app status:
 ```
 $ kubectl argo rollouts -n istio get rollout helm-istio-canary-demo
 Name:            helm-istio-canary-demo
