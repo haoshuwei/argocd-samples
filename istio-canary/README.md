@@ -17,10 +17,10 @@ Once the application is synced you can access it using `hhelm-istio-canary-demo`
 ```
 $ kubectl argo rollouts -n istio get rollout helm-istio-canary-demo
 Name:            helm-istio-canary-demo
-Namespace:       canary
+Namespace:       istio
 Status:          ✔ Healthy
 Strategy:        Canary
-  Step:          8/8
+  Step:          4/4
   SetWeight:     100
   ActualWeight:  100
 Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1 (stable)
@@ -31,25 +31,31 @@ Replicas:
   Ready:         5
   Available:     5
 
-NAME                                          KIND        STATUS     AGE    INFO
-⟳ helm-istio-canary-demo                            Rollout     ✔ Healthy  7m46s
+NAME                                                KIND        STATUS     AGE   INFO
+⟳ helm-istio-canary-demo                            Rollout     ✔ Healthy  101s
 └──# revision:1
-   └──⧉ helm-istio-canary-demo-5577cb9b4b           ReplicaSet  ✔ Healthy  7m46s  stable
-      ├──□ helm-istio-canary-demo-5577cb9b4b-9qs8g  Pod         ✔ Running  7m46s  ready:1/1
-      ├──□ helm-istio-canary-demo-5577cb9b4b-fmrmq  Pod         ✔ Running  7m46s  ready:1/1
-      ├──□ helm-istio-canary-demo-5577cb9b4b-gkz2g  Pod         ✔ Running  7m46s  ready:1/1
-      ├──□ helm-istio-canary-demo-5577cb9b4b-qh7t4  Pod         ✔ Running  7m46s  ready:1/1
-      └──□ helm-istio-canary-demo-5577cb9b4b-tgtjw  Pod         ✔ Running  7m46s  ready:1/1
+   └──⧉ helm-istio-canary-demo-67b4d4dc89           ReplicaSet  ✔ Healthy  101s  stable
+      ├──□ helm-istio-canary-demo-67b4d4dc89-bddtf  Pod         ✔ Running  101s  ready:2/2
+      ├──□ helm-istio-canary-demo-67b4d4dc89-cthrj  Pod         ✔ Running  101s  ready:2/2
+      ├──□ helm-istio-canary-demo-67b4d4dc89-fdp9n  Pod         ✔ Running  101s  ready:2/2
+      ├──□ helm-istio-canary-demo-67b4d4dc89-tl6fd  Pod         ✔ Running  101s  ready:2/2
+      └──□ helm-istio-canary-demo-67b4d4dc89-txx7h  Pod         ✔ Running  101s  ready:2/2
 ```
 
 ```
-$ kubectl -n canary get svc
-NAME                       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
-helm-istio-canary-demo           ClusterIP   172.27.0.160   <none>        80/TCP    22s
+$ kubectl -n istio get svc
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+canary-svc   ClusterIP   172.27.9.30    <none>        80/TCP    5m53s
+stable-svc   ClusterIP   172.27.1.113   <none>        80/TCP    5m53s
+```
+
+```$xslt
+$ kubectl -n istio-system get svc|grep istio-ingressgateway
+  istio-ingressgateway     LoadBalancer   172.27.1.78     xx.xxx.xxx.xxx   15020:31944/TCP,80:31627/TCP,443:32212/TCP,15443:30574/TCP   15h
 ```
 
 ```
-$ while sleep 0.5; do curl 172.27.0.160; done
+$ while sleep 0.5; do curl xx.xxx.xxx.xxx; done
 Cluster: , Version: v1
 Cluster: , Version: v1
 Cluster: , Version: v1
@@ -80,55 +86,56 @@ $ argocd app set helm-istio-canary-demo -p image.tag=v2 && argocd app sync helm-
 ```
 `ActualWeight:  20`:
 ```
-$ kubectl argo rollouts -n canary get rollout helm-istio-canary-demo
+kubectl argo rollouts -n istio get rollout helm-istio-canary-demo
 Name:            helm-istio-canary-demo
-Namespace:       canary
+Namespace:       istio
 Status:          ॥ Paused
 Strategy:        Canary
-  Step:          1/8
-  SetWeight:     20
-  ActualWeight:  20
+  Step:          3/4
+  SetWeight:     40
+  ActualWeight:  28
 Images:          registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v1 (stable)
                  registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo:v2 (canary)
 Replicas:
   Desired:       5
-  Current:       5
-  Updated:       1
-  Ready:         5
-  Available:     5
+  Current:       7
+  Updated:       2
+  Ready:         7
+  Available:     7
 
-NAME                                          KIND        STATUS     AGE    INFO
-⟳ helm-istio-canary-demo                            Rollout     ॥ Paused   12m
+NAME                                                KIND        STATUS     AGE   INFO
+⟳ helm-istio-canary-demo                            Rollout     ॥ Paused   7m8s
 ├──# revision:2
-│  └──⧉ helm-istio-canary-demo-79894f78f            ReplicaSet  ✔ Healthy  3m56s  canary
-│     └──□ helm-istio-canary-demo-79894f78f-2dgwb   Pod         ✔ Running  3m56s  ready:1/1
+│  └──⧉ helm-istio-canary-demo-59689777db           ReplicaSet  ✔ Healthy  42s   canary
+│     ├──□ helm-istio-canary-demo-59689777db-bddlg  Pod         ✔ Running  42s   ready:2/2
+│     └──□ helm-istio-canary-demo-59689777db-99tkw  Pod         ✔ Running  10s   ready:2/2
 └──# revision:1
-   └──⧉ helm-istio-canary-demo-5577cb9b4b           ReplicaSet  ✔ Healthy  12m    stable
-      ├──□ helm-istio-canary-demo-5577cb9b4b-9qs8g  Pod         ✔ Running  12m    ready:1/1
-      ├──□ helm-istio-canary-demo-5577cb9b4b-fmrmq  Pod         ✔ Running  12m    ready:1/1
-      ├──□ helm-istio-canary-demo-5577cb9b4b-qh7t4  Pod         ✔ Running  12m    ready:1/1
-      └──□ helm-istio-canary-demo-5577cb9b4b-tgtjw  Pod         ✔ Running  12m    ready:1/1
+   └──⧉ helm-istio-canary-demo-67b4d4dc89           ReplicaSet  ✔ Healthy  7m8s  stable
+      ├──□ helm-istio-canary-demo-67b4d4dc89-bddtf  Pod         ✔ Running  7m8s  ready:2/2
+      ├──□ helm-istio-canary-demo-67b4d4dc89-cthrj  Pod         ✔ Running  7m8s  ready:2/2
+      ├──□ helm-istio-canary-demo-67b4d4dc89-fdp9n  Pod         ✔ Running  7m8s  ready:2/2
+      ├──□ helm-istio-canary-demo-67b4d4dc89-tl6fd  Pod         ✔ Running  7m8s  ready:2/2
+      └──□ helm-istio-canary-demo-67b4d4dc89-txx7h  Pod         ✔ Running  7m8s  ready:2/2
 ```
 
 ```
-$ kubectl -n canary get svc
-NAME                       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
-helm-istio-canary-demo           ClusterIP   172.27.0.160   <none>        80/TCP    22s
-```
-
-```
-$ while sleep 0.5; do curl 172.27.0.160; done
+$ while sleep 0.5; do curl xx.xxx.xxx.xxx; done
+Cluster: , Version: v2
 Cluster: , Version: v2
 Cluster: , Version: v1
 Cluster: , Version: v1
 Cluster: , Version: v1
 Cluster: , Version: v1
+Cluster: , Version: v1
+Cluster: , Version: v2
+Cluster: , Version: v1
+Cluster: , Version: v2
 ```
 
 #### 4 Promote `haoshuwei24/go-demo:v2` to weight `40`, then automatically to `60` and `80`:
 
 ```
-$ kubectl argo rollouts -n canary promote helm-istio-canary-demo
+$ kubectl argo rollouts -n istio promote helm-istio-canary-demo
 ```
 
 ```

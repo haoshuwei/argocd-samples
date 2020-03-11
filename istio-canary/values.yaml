@@ -6,7 +6,7 @@ replicaCount: 5
 
 image:
   repository: registry.cn-hangzhou.aliyuncs.com/haoshuwei24/go-demo
-  tag: v1
+  tag: v2
   pullPolicy: Always
 
 service:

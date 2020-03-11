@@ -19,8 +19,14 @@ spec:
       steps:
       - setWeight: 20
       - pause:
-          duration: 20
+          {}
       - setWeight: 40
+      - pause:
+          {duration: 40}
+      - setWeight: 60
+      - pause:
+          {}
+      - setWeight: 80
       - pause:
           {}
       canaryService: canary-svc # required
