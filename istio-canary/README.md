@@ -103,6 +103,7 @@ $ argocd app set helm-istio-canary-demo -p image.tag=v2 && argocd app sync helm-
 ```
 `ActualWeight:  20`:
 ```
+$ kubectl argo rollouts -n istio get rollout helm-istio-canary-demo
 Name:            helm-istio-canary-demo
 Namespace:       istio
 Status:          ॥ Paused
