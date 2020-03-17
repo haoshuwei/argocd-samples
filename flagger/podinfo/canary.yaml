@@ -25,9 +25,9 @@ spec:
         mode: DISABLE
   analysis:
     interval: 30s
-    threshold: 10
-    maxWeight: 50
-    stepWeight: 5
+    threshold: 5
+    maxWeight: 100
+    stepWeight: 10
     metrics:
     - name: request-success-rate
       threshold: 99
