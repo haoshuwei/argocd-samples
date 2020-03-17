@@ -1,0 +1,15 @@
+namespace: istio-system
+commonLabels:
+  app: prometheus
+resources:
+  - account.yaml
+  - rbac.yaml
+  - service.yaml
+  - deployment.yaml
+configMapGenerator:
+  - name: prometheus
+    files:
+      - prometheus.yml
+images:
+  - name: prom/prometheus
+    newTag: v2.15.2
