@@ -33,7 +33,10 @@ spec:
       thresholdRange:
         min: 99
       interval: 30s
-    - name: request-duration
+    - name: latency
+      templateRef:
+        name: latency
+        namespace: istio-system
       thresholdRange:
         max: 500
       interval: 30s
