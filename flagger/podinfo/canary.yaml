@@ -30,14 +30,16 @@ spec:
     stepWeight: 10
     metrics:
     - name: request-success-rate
-      threshold: 99
+      thresholdRange:
+        min: 99
       interval: 30s
     - name: request-duration
-      threshold: 500
+      thresholdRange:
+        max: 500
       interval: 30s
     webhooks:
       - name: load-test
         url: http://loadtester.test.svc.cluster.local/
         timeout: 5s
         metadata:
-          cmd: "hey -z 1m -q 10 -c 2 http://podinfo-canary.test.svc.cluster.local:9898/"
+          cmd: "hey -z 1m -q 10 -c 2 http://podinfo-canary.test:9898/"
