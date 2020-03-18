@@ -30,10 +30,12 @@ spec:
     stepWeight: 10
     metrics:
     - name: request-success-rate
-      threshold: 99
+      thresholdRange:
+        min: 99
       interval: 30s
     - name: request-duration
-      threshold: 500
+      thresholdRange:
+        max: 500
       interval: 30s
     webhooks:
       - name: load-test
