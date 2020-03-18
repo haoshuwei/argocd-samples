@@ -33,10 +33,10 @@ spec:
       thresholdRange:
         min: 99
       interval: 30s
-    - name: request-duration
-      thresholdRange:
-        max: 500
-      interval: 30s
+    #- name: request-duration
+    #  thresholdRange:
+    #    max: 500
+    #  interval: 30s
     webhooks:
       - name: load-test
         url: http://loadtester.test/
