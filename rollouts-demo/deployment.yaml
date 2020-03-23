@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: podinfod
-        image: registry.cn-hangzhou.aliyuncs.com/acs/rollouts-demo:blue
+        image: registry.cn-hangzhou.aliyuncs.com/acs/rollouts-demo:red
         imagePullPolicy: IfNotPresent
         ports:
         - name: http
