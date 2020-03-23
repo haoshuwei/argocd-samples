@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: weaveworks/flagger-loadtester
+  repository: registry.cn-hangzhou.aliyuncs.com/acs/flagger-loadtester
   tag: 0.13.0
   pullPolicy: IfNotPresent
 
