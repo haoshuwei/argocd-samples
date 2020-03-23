@@ -1,0 +1,6 @@
+namespace: test
+resources:
+  - hpa.yaml
+  - deployment.yaml
+  - latency.yaml
+  - canary.yaml
