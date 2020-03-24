@@ -24,22 +24,22 @@ spec:
         # use ISTIO_MUTUAL when mTLS is enabled
         mode: DISABLE
   analysis:
-    interval: 5s
-    threshold: 5
+    interval: 30s
+    threshold: 3
     maxWeight: 100
-    stepWeight: 5
+    stepWeight: 20
     metrics:
     - name: request-success-rate
       thresholdRange:
         min: 99
-      interval: 5s
+      interval: 30s
     - name: latency
       templateRef:
         name: latency
         namespace: istio-system
       thresholdRange:
         max: 500
-      interval: 5s
+      interval: 30s
     webhooks:
       - name: load-test
         url: http://loadtester.test/
