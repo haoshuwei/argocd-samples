@@ -27,7 +27,7 @@ spec:
     interval: 30s
     threshold: 3
     maxWeight: 100
-    stepWeight: 10
+    stepWeight: 20
     metrics:
     - name: request-success-rate
       thresholdRange:
@@ -45,4 +45,4 @@ spec:
         url: http://loadtester.test/
         timeout: 5s
         metadata:
-          cmd: "hey -z 30s -c 1 http://podinfo-canary:8080/"
+          cmd: "hey -z 1m -c 1 http://podinfo-canary:8080/"
