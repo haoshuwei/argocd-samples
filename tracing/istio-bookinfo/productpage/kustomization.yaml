@@ -1,0 +1,5 @@
+namespace: bookinfo
+resources:
+  - serviceaccount.yaml
+  - deployment.yaml
+  - service.yaml
