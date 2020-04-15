@@ -2,4 +2,4 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
-  - canary.yaml
+#  - canary.yaml
