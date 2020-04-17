@@ -17,6 +17,9 @@ spec:
       app: podinfo
   template:
     metadata:
+      annotations:
+        prometheus.io/port: "9797"
+        prometheus.io/scrape: "true"
       labels:
         app: podinfo
     spec:
